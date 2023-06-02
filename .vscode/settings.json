@@ -1,4 +1,14 @@
 {
   "editor.bracketPairColorization.enabled": true,
-  "editor.guides.bracketPairs": true
+  "editor.guides.bracketPairs": true,
+  "cSpell.ignoreWords": [
+    "Btns",
+    "Вращение",
+    "Курсор",
+    "Масштабирование",
+    "Смещение"
+  ],
+  "cSpell.words": [
+    "babylonjs"
+  ]
 }
