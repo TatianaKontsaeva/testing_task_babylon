@@ -16,7 +16,7 @@
       <router-view />
     </q-page-container>
 
-    <q-footer elevated class="bg-grey-8 text-white">
+    <q-footer class="bg-white">
       <q-toolbar>
       </q-toolbar>
     </q-footer>
