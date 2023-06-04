@@ -1,29 +1,29 @@
 <template>
     <q-page class="flex flex-center q-gutter-lg q-pa-lg">
       <q-btn
-        class="bubbleBtns"
-        glossy
         outline
         label="Курсор"
+        :class="toggleBtn[0] ? 'pushedButton' : ''"
+        @click="toggleGizmo(0)"
       />
       <q-btn
-        class="bubbleBtns"
-        glossy
         outline
         label="Смещение"
+        :class="toggleBtn[1] ? 'pushedButton' : ''"
+        @click="toggleGizmo(1,'positionGizmoEnabled')"
       />
       <q-btn
-        class="bubbleBtns"
-        glossy
         outline
         label="Вращение"
+        :class="toggleBtn[2] ? 'pushedButton' : ''"
+        @click="toggleGizmo(2,'rotationGizmoEnabled')"
       />
       <q-btn
-        class="bubbleBtns"
-   
-        glossy
         outline
         label="Масштабирование"
+        :class="toggleBtn[3] ? 'pushedButton' : ''"
+        @click="toggleGizmo(3,'scaleGizmoEnabled')"
+
       />
     <canvas ref="renderCanvas" id="renderCanvas" touch-action="none"></canvas>
     </q-page>
@@ -36,10 +36,29 @@ import * as BABYLON from "@babylonjs/core/Legacy/legacy";
 const { pages } = defineProps({
   pages: Array,
 });
-
-let bubbleBtns = ref([true, false, false]);
 const renderCanvas = ref(null);
+
+//переключение действий
+let toggleBtn = ref([false, true, false, false]);
 const gizmoManager = ref(null);
+const currentAction = ref("positionGizmoEnabled");
+
+const toggleGizmo = (index, gizmo) => {
+  toggleBtn.value = [false, false, false, false];
+  toggleBtn.value[index] = true;
+  if (gizmoManager.value) {
+    gizmoManager.value[currentAction.value] = false;
+    gizmoManager.value[gizmo] = !gizmoManager.value[gizmo];
+  }
+  currentAction.value = gizmo;
+};
+const toggleAction = function (arrayValues) {
+  gizmoManager.value.positionGizmoEnabled = arrayValues[1];
+  gizmoManager.value.rotationGizmoEnabled = arrayValues[2];
+  gizmoManager.value.scaleGizmoEnabled = arrayValues[3];
+  toggleAction(toggleBtn.value);
+
+};
 
 onMounted(() => {
   const canvas = renderCanvas.value;
@@ -67,47 +86,16 @@ onMounted(() => {
   ground.position.y = -1;
   scene.createDefaultXRExperienceAsync({ floorMeshes: [ground] });
 
-//создаем объекты
-  let spheres = [];
-
-  for (let i = 0; i < 3; i++) {
-    let sphere = BABYLON.Mesh.CreateSphere("sphere1", 16, 1.8, scene);
-    sphere.material = new BABYLON.StandardMaterial("sphere material", scene);
-    sphere.position.z = i+1;
+//создаем объект
+  let sphere = BABYLON.Mesh.CreateSphere("sphere1", 16, 2, scene);
+    sphere.rotation.z = Math.PI/2
     sphere.position.y = 1;
-    sphere.position.x = i-1.5
-    sphere.actionManager = new BABYLON.ActionManager(scene);
-    sphere.material.diffuseColor = BABYLON.Color3.Green();
-    spheres.push(sphere);
-  }
-  // Initialize GizmoManager
-  const gizmoManager = new BABYLON.GizmoManager(scene)
 
-  gizmoManager.positionGizmoEnabled = true;
-  gizmoManager.rotationGizmoEnabled = false;
-  gizmoManager.scaleGizmoEnabled = true;
-  gizmoManager.boundingBoxGizmoEnabled = true;
+// Initialize GizmoManager
+  gizmoManager.value = new BABYLON.GizmoManager(scene);
+  gizmoManager.value.positionGizmoEnabled = true;
+  gizmoManager.updateGizmoRotationToMatchAttachedMesh = false;
 
-
-  // Restrict gizmos to only spheres
-  gizmoManager.attachableMeshes = spheres
-  // Toggle gizmos with keyboard buttons
-  document.onkeydown = (e)=>{
-      if(e.key == 'w'){
-          gizmoManager.positionGizmoEnabled = !gizmoManager.positionGizmoEnabled
-      }
-      if(e.key == 'e'){
-          gizmoManager.rotationGizmoEnabled = !gizmoManager.rotationGizmoEnabled
-      }
-      if(e.key == 'r'){
-          gizmoManager.scaleGizmoEnabled = !gizmoManager.scaleGizmoEnabled
-      }
-      if(e.key == 'q'){
-          gizmoManager.boundingBoxGizmoEnabled = !gizmoManager.boundingBoxGizmoEnabled
-      }
-      	return scene;
-  }
- 
  // Register a render loop
   engine.runRenderLoop(() => {
     scene.render();
@@ -117,9 +105,14 @@ onMounted(() => {
 
 <style lang="scss">
 #renderCanvas {
-        width: 100%;
-        height: 100%;
-        touch-action: none;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
       }
+.pushedButton {
+  color: rgb(53, 93, 214);
+  border: 1px solid rgb(53, 93, 214);
+  transform: translateY(3px);
+}
 
 </style>
