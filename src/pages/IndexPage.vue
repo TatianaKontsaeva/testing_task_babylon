@@ -88,8 +88,10 @@ onMounted(() => {
 
 //создаем объект
   let sphere = BABYLON.Mesh.CreateSphere("sphere1", 16, 2, scene);
-    sphere.rotation.z = Math.PI/2
-    sphere.position.y = 1;
+  sphere.material = new BABYLON.StandardMaterial("sphere material", scene);
+  sphere.rotation.z = Math.PI/2
+  sphere.position.y = 1;
+  sphere.material.diffuseColor = BABYLON.Color3.Yellow();
 
 // Initialize GizmoManager
   gizmoManager.value = new BABYLON.GizmoManager(scene);
